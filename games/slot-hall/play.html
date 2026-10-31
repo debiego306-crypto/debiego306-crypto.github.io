@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<title>スロットホール経営物語</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0b1a;--panel:#1a1630;--panel2:#241e42;--txt:#f3efff;--sub:#a99fd0;--gold:#ffd60a;--pink:#ff4d9d;--green:#2ee59d;--red:#ff5c5c;--cyan:#4dd2ff}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:radial-gradient(ellipse at top,#2a1650,var(--bg) 60%);color:var(--txt);font-family:'M PLUS Rounded 1c',system-ui,sans-serif;min-height:100vh;padding:env(safe-area-inset-top) 0 calc(70px + env(safe-area-inset-bottom));user-select:none}
+button{font-family:inherit;border:none;cursor:pointer;color:inherit}
+.wrap{max-width:520px;margin:0 auto;padding:6px 10px}
+header{position:sticky;top:0;z-index:20;background:rgba(13,11,26,.94);backdrop-filter:blur(8px);border-bottom:1px solid #2f2756;padding:8px 10px}
+header .row{max-width:520px;margin:0 auto;display:flex;gap:6px;align-items:center;justify-content:space-between}
+.logo{font-weight:800;font-size:13px;line-height:1.25;background:linear-gradient(90deg,var(--gold),var(--pink));-webkit-background-clip:text;color:transparent;white-space:nowrap}
+.stat{background:var(--panel);border-radius:10px;padding:4px 8px;font-size:10px;color:var(--sub);text-align:right;line-height:1.2}
+.stat b{display:block;font-size:14px;color:var(--txt)}
+.repbar{height:5px;background:#2f2756;border-radius:3px;margin-top:2px;overflow:hidden}
+.repbar i{display:block;height:100%;background:linear-gradient(90deg,var(--red),var(--gold),var(--green))}
+.card{background:var(--panel);border-radius:16px;padding:12px;margin:8px 0;border:1px solid #2f2756}
+.card h3{font-size:14px;margin-bottom:8px;color:var(--gold)}
+.forecast{display:flex;gap:10px;align-items:center}
+.forecast .big{font-size:34px}
+.forecast p{font-size:12px;color:var(--sub);line-height:1.45}
+.forecast strong{font-size:15px}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.cal div{cursor:pointer;background:var(--panel2);border-radius:8px;text-align:center;padding:4px 0 3px;font-size:10px;color:var(--sub);border:1.5px solid transparent}
+.cal div b{display:block;font-size:12px;color:var(--txt)}
+.cal div i{font-style:normal;font-size:13px;display:block;height:17px}
+.cal div.today{border-color:var(--gold)}
+.cal div.sat b{color:var(--cyan)}.cal div.sun b{color:#ff7b9c}
+.cal div.sp{background:#3b2a12}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--panel2);border:1.5px solid #3a3070;border-radius:999px;padding:7px 11px;font-size:12px}
+.chip.on{border-color:var(--pink);background:#3d1a3a;color:#fff}
+.chip small{color:var(--sub)}
+.open{width:100%;padding:15px;border-radius:14px;font-size:18px;font-weight:800;background:linear-gradient(90deg,#ff4d9d,#ff9f1c);box-shadow:0 0 18px #ff4d9d88}
+.open:active{transform:scale(.98)}
+.open:disabled{opacity:.5;box-shadow:none}
+
+/* ===== 俯瞰ホール ===== */
+#floorWrap{position:relative;width:100%;overflow:hidden;border-radius:14px;border:2px solid #3a3070}
+#scene{position:absolute;left:0;top:0;width:360px;transform-origin:0 0;
+  background:
+   radial-gradient(circle at 25% 25%,#ffd60a22 2px,transparent 3px) 0 0/18px 18px,
+   radial-gradient(circle at 75% 75%,#ff4d9d26 2px,transparent 3px) 0 0/18px 18px,
+   repeating-linear-gradient(45deg,#3b0f2a 0 9px,#330c24 9px 18px)}
+.wall{position:absolute;left:0;top:0;width:360px;height:40px;background:linear-gradient(#17122b,#221a3d);border-bottom:3px solid #4a3b86}
+.fac{position:absolute;top:6px;height:26px;border-radius:6px;font-size:9.5px;display:flex;align-items:center;justify-content:center;gap:3px;font-weight:800;white-space:nowrap}
+.island{position:absolute;left:30px;width:300px;height:68px;background:#14102a;border-radius:6px;box-shadow:0 3px 0 #0008}
+.island.lock{background:repeating-linear-gradient(45deg,#2b2b2b 0 8px,#3a3315 8px 16px);opacity:.7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#ffd60acc;cursor:pointer}
+.cap{position:absolute;width:10px;height:68px;background:#3a3070;border-radius:3px}
+.cap::after{content:'';position:absolute;left:3px;top:6px;width:4px;height:4px;border-radius:50%;background:var(--cyan);box-shadow:0 0 5px var(--cyan)}
+.mc{position:absolute;width:44px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;border:1.5px solid #0006;transition:box-shadow .2s}
+.mc .lamp{position:absolute;left:4px;right:4px;height:3px;border-radius:2px;background:#fff6}
+.mc.up .lamp{top:2px}.mc.dn .lamp{bottom:2px}
+.mc .sb{position:absolute;right:1px;font-size:8px;font-weight:800;background:#000b;color:var(--gold);border-radius:3px;padding:0 2px;line-height:11px}
+.mc.up .sb{bottom:1px}.mc.dn .sb{top:1px}
+.mc .nw{position:absolute;left:1px;font-size:6.5px;font-weight:800;background:var(--pink);border-radius:3px;padding:0 2px;line-height:10px}
+.mc.up .nw{bottom:1px}.mc.dn .nw{top:1px}
+.mc.broken{filter:grayscale(1) brightness(.6)}
+.mc.empty{background:transparent;border:1.5px dashed #6a5fa8;color:#6a5fa8;font-size:13px}
+.mc.win{animation:win .5s ease 3}
+@keyframes win{50%{box-shadow:0 0 14px 4px var(--gold);border-color:var(--gold)}}
+.seat{position:absolute;width:12px;height:12px;border-radius:50%;background:#7a2c4e;border:2px solid #a8436f}
+.pp{position:absolute;font-size:15px;line-height:1;transform:translate(-50%,-50%);transition-property:left,top;transition-timing-function:linear;z-index:5;pointer-events:none;filter:drop-shadow(0 1px 1px #000)}
+.box{position:absolute;width:9px;height:7px;background:linear-gradient(#ffe066,#e0a800);border:1px solid #7a5a00;border-radius:1px;z-index:4;pointer-events:none}
+.pop{position:absolute;font-weight:800;font-size:12px;color:var(--gold);text-shadow:0 0 5px #f80,0 0 2px #000;animation:up 1.2s ease forwards;pointer-events:none;z-index:8;transform:translateX(-50%);white-space:nowrap}
+@keyframes up{0%{opacity:0;margin-top:6px}20%{opacity:1;margin-top:0}100%{opacity:0;margin-top:-22px}}
+.door{position:absolute;bottom:0;left:130px;width:100px;height:22px;background:linear-gradient(#4dd2ff44,#4dd2ff11);border:2px solid #4dd2ff;border-bottom:none;border-radius:8px 8px 0 0;font-size:9.5px;font-weight:800;color:var(--cyan);display:flex;align-items:center;justify-content:center}
+.plant{position:absolute;font-size:16px}
+
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(20,17,38,.97);border-top:1px solid #2f2756;display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom);z-index:30}
+nav button{flex:1;max-width:130px;background:none;padding:8px 0 9px;font-size:11px;color:var(--sub)}
+nav button span{display:block;font-size:21px}
+nav button.on{color:var(--gold)}
+.tab{display:none}.tab.on{display:block}
+.shop{display:flex;gap:10px;align-items:center;padding:10px;background:var(--panel2);border-radius:12px;margin-bottom:8px}
+.shop .ic{font-size:30px;width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.shop .info{flex:1;min-width:0}
+.shop .info b{font-size:13px}
+.shop .info p{font-size:10.5px;color:var(--sub);line-height:1.4}
+.btn{background:var(--pink);padding:8px 11px;border-radius:10px;font-size:12px;font-weight:800;white-space:nowrap}
+.btn.alt{background:#3a3070}
+.btn:disabled{opacity:.35}
+.meter{display:inline-block;font-size:9px;letter-spacing:-1px;color:var(--gold)}
+.sheetbg{position:fixed;inset:0;background:#000a;z-index:50;display:none;align-items:flex-end;justify-content:center}
+.sheetbg.on{display:flex}
+.sheet{background:var(--panel);width:100%;max-width:520px;border-radius:20px 20px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;animation:sl .25s ease}
+@keyframes sl{from{transform:translateY(60px)}}
+.sheet h2{font-size:17px;margin-bottom:6px}
+.sheet p{font-size:12.5px;color:var(--sub);line-height:1.6}
+.sets{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:10px 0}
+.sets button{background:var(--panel2);border:2px solid #3a3070;border-radius:10px;padding:10px 0;font-weight:800;font-size:16px}
+.sets button.on{border-color:var(--gold);background:#3b3210;color:var(--gold)}
+.sets button small{display:block;font-size:8.5px;color:var(--sub);font-weight:500}
+.res{display:grid;grid-template-columns:1fr auto;gap:5px 10px;font-size:13px;margin:10px 0}
+.res .v{text-align:right;font-weight:800}
+.plus{color:var(--green)}.minus{color:var(--red)}
+.ticker{position:fixed;top:62px;left:10px;background:#000c;border:1.5px solid var(--gold);border-radius:12px;padding:5px 12px;z-index:40;font-weight:800;display:none;font-size:11px}
+.ticker.on{display:block}
+.ticker b{font-size:18px;display:block}
+.log{font-size:12px;color:var(--sub);line-height:1.7}
+.log div{border-bottom:1px dashed #2f2756;padding:4px 0}
+.chart{display:flex;align-items:flex-end;gap:3px;height:90px;padding:4px 0;border-bottom:1px solid #3a3070}
+.chart i{flex:1;border-radius:3px 3px 0 0;min-height:2px}
+.row2{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;padding:6px 0}
+.row2 p{font-size:10.5px;color:var(--sub)}
+.toast{position:fixed;bottom:86px;left:50%;transform:translateX(-50%);background:#000d;padding:8px 14px;border-radius:12px;font-size:12.5px;z-index:60;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+.speed{position:fixed;top:62px;right:10px;z-index:41;display:none;background:#3a3070;padding:9px 12px;border-radius:10px;font-size:12px;font-weight:800}
+.speed.on{display:block}
+.rank{font-size:64px;font-weight:800;text-align:center;background:linear-gradient(var(--gold),var(--pink));-webkit-background-clip:text;color:transparent}
+.hint{font-size:10.5px;color:var(--sub);margin-top:8px;line-height:1.5}
+</style>
+</head>
+<body>
+<header><div class="row">
+  <div class="logo">🎰 スロットホール<br>経営物語</div>
+  <div class="stat">所持金<b id="hMoney">-</b></div>
+  <div class="stat">日付<b id="hDay">-</b></div>
+  <div class="stat" style="min-width:66px">評判<b id="hRep">-</b><div class="repbar"><i id="hRepBar"></i></div></div>
+</div></header>
+
+<div class="wrap">
+  <section class="tab on" id="t-hall">
+    <div class="card">
+      <div class="forecast"><div class="big" id="fcIcon"></div><div><strong id="fcName"></strong><p id="fcText"></p></div></div>
+      <div id="crowd"></div><div class="cal" id="cal"></div>
+    </div>
+    <div class="card">
+      <h3>📣 今日の作戦</h3>
+      <div class="chips" id="adChips"></div>
+      <div class="chips" style="margin-top:8px"><button class="chip" id="evChip"></button></div>
+      <p id="planNote" class="hint"></p>
+      <button class="open" id="openBtn" style="margin-top:10px">🎰 営業開始！</button>
+    </div>
+    <div class="card" style="padding:10px">
+      <h3 id="floorTitle">ホール</h3>
+      <div id="floorWrap"><div id="scene"></div></div>
+      <p class="hint">台をタップすると設定変更・売却ができます。点線の枠は空きスペース（タップで新台購入）。黄色い箱はドル箱＝お客さんの勝ち分です。</p>
+    </div>
+  </section>
+
+  <section class="tab" id="t-shop">
+    <div class="card"><h3>🛒 新台を導入</h3><p class="hint" style="margin:0 0 10px">評判が高いとメーカーが人気機種を卸してくれます。新台は3日間お客さんが集まりやすい！</p><div id="shopList"></div></div>
+  </section>
+
+  <section class="tab" id="t-mng">
+    <div class="card"><h3>👥 スタッフ</h3><div id="staffBox"></div></div>
+    <div class="card"><h3>🏗️ ホール拡張</h3><div id="expBox"></div></div>
+    <div class="card"><h3>💸 毎日の固定費</h3><div id="costBox"></div></div>
+    <div class="card"><h3>⚙️ その他</h3>
+      <div class="row2"><div>遊び方を見る</div><button class="btn alt" id="howBtn">開く</button></div>
+      <div class="row2"><div>ほかのゲーム・攻略を見る</div><a class="btn alt" href="./" style="text-decoration:none">ゲームページへ</a></div>
+      <div class="row2"><div>最初からやり直す</div><button class="btn alt" id="resetBtn">リセット</button></div>
+    </div>
+  </section>
+
+  <section class="tab" id="t-log">
+    <div class="card"><h3>📈 毎日の収支</h3><div class="chart" id="chart"></div><p class="hint">緑＝黒字の日／赤＝赤字の日</p></div>
+    <div class="card"><h3>📒 営業日誌</h3><div class="log" id="logBox"></div></div>
+  </section>
+</div>
+
+<nav>
+  <button class="on" data-t="hall"><span>🏪</span>ホール</button>
+  <button data-t="shop"><span>🛒</span>新台</button>
+  <button data-t="mng"><span>📋</span>経営</button>
+  <button data-t="log"><span>📈</span>記録</button>
+</nav>
+
+<div class="ticker" id="ticker">本日の台収支<b id="tickVal">¥0</b><span id="tickVis" style="color:var(--sub)"></span></div>
+<button class="speed" id="skipBtn">⏩ スキップ</button>
+<div class="sheetbg" id="sheetbg"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ===== データ =====
+const TYPES={
+  pierrot:{name:'ピエロ7',em:'🤡',col:'#c2185b',price:200000,pop:1.0,coin:1.0,vol:.06,req:0,kind:'A',desc:'ペカれば当たりのシンプルなAタイプ。お年寄りに大人気'},
+  panda:{name:'ネオンパンダ',em:'🐼',col:'#1976d2',price:350000,pop:1.4,coin:1.1,vol:.09,req:0,kind:'A',desc:'かわいい演出のAタイプ。幅広い層に人気'},
+  samurai:{name:'サムライ・ラッシュ',em:'⚔️',col:'#e65100',price:600000,pop:1.9,coin:1.3,vol:.14,req:35,kind:'AT',desc:'一撃のラッシュが熱いAT機。若い客に人気'},
+  usagi:{name:'宇宙うさぎ',em:'🐰',col:'#7b1fa2',price:950000,pop:2.5,coin:1.45,vol:.19,req:55,kind:'AT',desc:'SNSで話題の最新AT機。打ち手が多く回転率◎'},
+  dragon:{name:'ドラゴン魂',em:'🐉',col:'#00897b',price:1500000,pop:3.3,coin:1.65,vol:.25,req:72,kind:'AT',desc:'業界最強の看板機種。荒波だけど集客力は圧倒的'}
+};
+const PAY=[0,.90,.94,.97,1.01,1.05,1.09];
+const SETLBL=['','辛い','やや辛','普通','甘め','甘い','激甘'];
+const EVENTS=[
+  {w:36,ic:'☀️',n:'晴れ',t:'いつも通りの一日。',mul:1},
+  {w:14,ic:'☔',n:'雨',t:'雨の日は屋内に人が集まる。客足 少しアップ',mul:1.15},
+  {w:5,ic:'🌀',n:'台風接近',t:'外出する人が少ない…客足 大幅ダウン',mul:.55},
+  {w:6,ic:'🏮',n:'地元のお祭り',t:'みんなお祭りへ。客足 少しダウン',mul:.85},
+  {w:5,ic:'📺',n:'TV取材が来る',t:'地元番組で紹介される！客足アップ＆評判+3',mul:1.3,rep:3},
+  {w:5,ic:'🏢',n:'近所に競合店',t:'ライバル店がイベント中。客足ダウン＆評判-2',mul:.8,rep:-2},
+  {w:6,ic:'🧓',n:'常連さんデー',t:'常連さんが友達を連れてくる。客足 少しアップ',mul:1.1},
+];
+const PENSION={ic:'👴',n:'年金支給日',t:'偶数月の15日！お年寄りがドッと来店。Aタイプ（ピエロ7・ネオンパンダ）に人が集まる',mul:1.5,crowd:'old',pref:{A:1.8,AT:.8}};
+const PAYDAY={ic:'💴',n:'給料日',t:'25日は給料日！若いお客さんが増えてAT機が大人気',mul:1.35,crowd:'young',pref:{A:.9,AT:1.35}};
+const ADS=[{id:'none',n:'宣伝なし',c:0,mul:1},{id:'flyer',n:'チラシ',c:30000,mul:1.2},{id:'sns',n:'SNS広告',c:80000,mul:1.45}];
+const EXP=[{cap:12,cost:0},{cap:24,cost:1500000},{cap:36,cost:4000000}];
+const RENT=30000,ELEC=2000,STAFFPAY=10000,MAXDAY=30;
+const START=[2026,4,20]; // 2026/5/20(水)スタート
+const CROWD={normal:['🧑','👨','👩','🧔','👴','👱','🧑‍🦱','👩‍🦰','🧢','👵'],old:['👴','👵','👴','👵','👴','👵','🧓','🧓','👨'],young:['🧑','👱','🧑‍🦱','👩‍🦰','🧢','👨','👩','🧔']};
+const DOWJ=['日','月','火','水','木','金','土'];
+
+let S,busy=false,timers=[],finishFn=null;
+const $=id=>document.getElementById(id);
+const yen=n=>(n<0?'-':'')+'¥'+Math.abs(Math.round(n)).toLocaleString();
+const man=n=>{const a=Math.abs(n);return (n<0?'-':'')+(a>=10000?(a/10000).toFixed(a>=1e6?0:1).replace(/\.0$/,'')+'万':Math.round(a).toLocaleString())+'円'};
+const randn=()=>{let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+let uid=1;
+
+// ===== カレンダー =====
+function dateOf(day){return new Date(START[0],START[1],START[2]+day-1)}
+function fmtDate(day){const d=dateOf(day);return `${d.getMonth()+1}/${d.getDate()}(${DOWJ[d.getDay()]})`}
+function special(day){const d=dateOf(day),m=d.getMonth()+1,dt=d.getDate();if(dt===15&&m%2===0)return PENSION;if(dt===25)return PAYDAY;return null}
+function todayEvent(){return special(S.day)||EVENTS[clamp(S.ev,0,EVENTS.length-1)]}
+function isWeekend(day){const w=dateOf(day).getDay();return w===0||w===6}
+
+function crowdMult(){const ev=todayEvent(),ad=ADS.find(a=>a.id===S.ad);return ev.mul*(isWeekend(S.day)?1.35:1)*ad.mul*(S.eventDay?1.6:1)}
+function pickEvent(){let t=EVENTS.reduce((a,e)=>a+e.w,0),r=Math.random()*t;for(let i=0;i<EVENTS.length;i++){r-=EVENTS[i].w;if(r<=0)return i}return 0}
+function newGame(){
+  uid=1;
+  S={money:2500000,day:1,rep:50,staff:1,exp:0,machines:[],log:[],hist:[],ev:pickEvent(),ad:'none',eventDay:false,over:false,seenHow:S?S.seenHow:false};
+  for(let i=0;i<4;i++)S.machines.push(mk('pierrot',2));
+  S.machines.push(mk('panda',3));
+  fixSlots();
+  S.machines.forEach(m=>m.newD=0);
+  addLog('🎉 開店！ピエロ7×4台とネオンパンダ×1台でスタート。');
+}
+function mk(type,set){return{id:uid++,type,set,newD:3,last:null,broken:false,slot:freeSlot()}}
+function freeSlot(){const used=new Set((S&&S.machines||[]).map(m=>m.slot));let i=0;while(used.has(i))i++;return i}
+function fixSlots(){const used=new Set();S.machines.forEach(m=>{if(m.slot==null||used.has(m.slot)){let i=0;while(used.has(i))i++;m.slot=i}used.add(m.slot)})}
+function save(){try{localStorage.setItem('slotTycoon2',JSON.stringify({S,uid}))}catch(e){}}
+function load(){try{const d=JSON.parse(localStorage.getItem('slotTycoon2'));if(d&&d.S){S=d.S;uid=d.uid;return true}}catch(e){}return false}
+function addLog(t){S.log.unshift(`<b>${fmtDate(S.day)}</b>　${t}`);S.log=S.log.slice(0,80)}
+function needStaff(){return Math.max(1,Math.ceil(S.machines.length/8))}
+function fixedCost(){return RENT+S.exp*15000+S.machines.length*ELEC+S.staff*STAFFPAY}
+function assets(){return S.money+S.machines.reduce((a,m)=>a+TYPES[m.type].price*.4,0)}
+function toast(t){const e=$('toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),1800)}
+
+// ===== 俯瞰ホールの座標 =====
+const IY0=82,IGAP=132,ISL_H=68,SEAT_OFF=17;
+const SCENE_H=IY0+3*IGAP+30;
+function slotPos(i){ // 台の座標
+  const isl=Math.floor(i/12),r=Math.floor((i%12)/6),c=i%6;
+  const y0=IY0+isl*IGAP;
+  const x=42+c*46;
+  const y=r===0?y0+2:y0+34;
+  const seatY=r===0?y0-SEAT_OFF+6:y0+ISL_H+SEAT_OFF-6;
+  const walkY=r===0?y0-28:y0+ISL_H+28;
+  return {x,y,up:r===0,cx:x+22,seatY,walkY};
+}
+function renderScene(){
+  const sc=$('scene');const cap=EXP[S.exp].cap;fixSlots();const bySlot={};S.machines.forEach(m=>bySlot[m.slot]=m);
+  let h=`<div class="wall"></div>
+   <div class="fac" style="left:8px;width:112px;background:#ffd60a;color:#3b2a00">🎁 景品カウンター</div>
+   <div class="fac" style="left:128px;width:62px;background:#2e7d32">💴 両替機</div>
+   <div class="fac" style="left:198px;width:70px;background:#455a64">🚬 喫煙室</div>
+   <div class="fac" style="left:276px;width:76px;background:#5c6bc0">🚻 トイレ</div>`;
+  for(let k=0;k<3;k++){
+    const y0=IY0+k*IGAP;
+    if(k*12>=cap){h+=`<div class="island lock" style="top:${y0}px" data-lock="1">🚧 工事中（ホール拡張で解放）</div>`;continue}
+    h+=`<div class="island" style="top:${y0}px"></div><div class="cap" style="left:30px;top:${y0}px"></div><div class="cap" style="left:320px;top:${y0}px"></div>`;
+    for(let j=0;j<12;j++){
+      const i=k*12+j,p=slotPos(i),m=bySlot[i];
+      h+=`<div class="seat" style="left:${p.cx-6}px;top:${p.seatY-6}px"></div>`;
+      if(i>=cap)continue;
+      if(m){const T=TYPES[m.type];
+        h+=`<div class="mc ${p.up?'up':'dn'}${m.broken?' broken':''}" id="m${m.id}" data-id="${m.id}" style="left:${p.x}px;top:${p.y}px;background:linear-gradient(${p.up?'180deg':'0deg'},${T.col},#111 120%)"><span class="lamp"></span>${m.broken?'🔧':T.em}<span class="sb">${m.set}</span>${m.newD>0?'<span class="nw">NEW</span>':''}</div>`;
+      }else h+=`<div class="mc empty ${p.up?'up':'dn'}" data-empty="1" style="left:${p.x}px;top:${p.y}px">＋</div>`;
+    }
+  }
+  h+=`<div class="plant" style="left:6px;top:${SCENE_H-26}px">🪴</div><div class="plant" style="left:336px;top:${SCENE_H-26}px">🪴</div><div class="door">🚪 入口</div>`;
+  sc.innerHTML=h;sc.style.height=SCENE_H+'px';
+  fitScene();
+}
+function fitScene(){const w=$('floorWrap').clientWidth||340,s=w/360;$('scene').style.transform=`scale(${s})`;$('floorWrap').style.height=SCENE_H*s+'px'}
+window.addEventListener('resize',fitScene);
+
+// ===== 描画 =====
+function render(){
+  $('hMoney').textContent=man(S.money);$('hMoney').className=S.money<0?'minus':'';
+  $('hDay').innerHTML=`${fmtDate(Math.min(S.day,MAXDAY))}<span style="font-size:9px;color:var(--sub);display:block">${Math.min(S.day,MAXDAY)}/${MAXDAY}日目</span>`;
+  $('hRep').textContent=Math.round(S.rep);$('hRepBar').style.width=S.rep+'%';
+  const ev=todayEvent(),we=isWeekend(S.day);
+  $('fcIcon').textContent=ev.ic;
+  $('fcName').textContent=`今日：${ev.n}${we?'（週末！）':''}`;
+  $('fcText').textContent=ev.t+(we?' 週末なので客足+35%。':'');
+  const cm=crowdMult(),lv=cm<.8?['🥶 ガラガラ','#4dd2ff']:cm<1.15?['🙂 ふつう','#2ee59d']:cm<1.6?['😃 にぎわう','#ffd60a']:cm<2.2?['🔥 混雑','#ff9f1c']:['🔥🔥 大混雑','#ff4d9d'];
+  $('crowd').innerHTML=`<div style="display:flex;justify-content:space-between;font-size:12px;margin-top:10px"><span>客足予想</span><b style="color:${lv[1]}">${lv[0]}（×${cm.toFixed(2)}）</b></div><div class="repbar" style="height:8px;margin-top:4px"><i style="width:${Math.min(100,cm/3*100)}%"></i></div>`;
+  let cal='';
+  for(let d=S.day;d<S.day+7;d++){const dt=dateOf(d),sp=special(d),w=dt.getDay();
+    cal+=`<div data-cal="${d}" class="${d===S.day?'today':''} ${w===6?'sat':w===0?'sun':''} ${sp?'sp':''}" ${d>MAXDAY?'style="opacity:.3"':''}><b>${dt.getMonth()+1}/${dt.getDate()}</b>${DOWJ[w]}<i>${d===S.day?ev.ic:sp?sp.ic:(w===0||w===6)?'🎉':''}</i></div>`}
+  $('cal').innerHTML=cal;
+  $('adChips').innerHTML=ADS.map(a=>`<button class="chip ${S.ad===a.id?'on':''}" data-ad="${a.id}">${a.n}<small> ${a.c?man(a.c):''}</small></button>`).join('');
+  $('evChip').className='chip'+(S.eventDay?' on':'');
+  $('evChip').innerHTML=`🔥 イベント日にする <small>¥50,000・客足×1.6</small>`;
+  const avg=S.machines.length?S.machines.reduce((a,m)=>a+m.set,0)/S.machines.length:0;
+  $('planNote').innerHTML=S.eventDay?`⚠️ イベント日は<b style="color:var(--gold)">平均設定4以上</b>にしないと「ガセイベ」と言われて評判ダウン！（現在の平均設定：<b>${avg.toFixed(1)}</b>）`:`固定費 ${man(fixedCost())}／日。平均設定：<b>${avg.toFixed(1)}</b>`;
+  const cap=EXP[S.exp].cap;
+  $('floorTitle').textContent=`ホール見取り図（${S.machines.length}/${cap}台）`;
+  if(!busy)renderScene();
+  // shop
+  $('shopList').innerHTML=Object.entries(TYPES).map(([k,T])=>{const lock=S.rep<T.req;const full=S.machines.length>=cap;return `<div class="shop"><div class="ic" style="background:${T.col}">${T.em}</div><div class="info"><b>${T.name}</b> <span style="font-size:11px;color:var(--gold)">${man(T.price)}</span><p>${T.kind}タイプ｜${T.desc}</p><p>人気 <span class="meter">${'★'.repeat(Math.round(T.pop*1.5))}</span>　波 <span class="meter">${'〰'.repeat(Math.ceil(T.vol*16))}</span>${lock?`<br><span style="color:var(--red)">🔒 評判${T.req}以上で解禁</span>`:''}</p></div><button class="btn" data-buy="${k}" ${lock||full||S.money<T.price||busy?'disabled':''}>${full?'満台':'導入'}</button></div>`}).join('');
+  const ns=needStaff();
+  $('staffBox').innerHTML=`<div class="row2"><div>スタッフ <b>${S.staff}人</b><p>必要人数：${ns}人（8台ごとに1人）。足りないと接客・清掃が行き届かず評判が下がります。日給${man(STAFFPAY)}／人</p></div></div><div style="display:flex;gap:8px"><button class="btn" id="hire" ${busy?'disabled':''}>＋雇う</button><button class="btn alt" id="fire" ${S.staff<=1||busy?'disabled':''}>－減らす</button></div>${S.staff<ns?'<p style="color:var(--red);font-size:11px;margin-top:6px">⚠️ スタッフ不足！</p>':''}`;
+  const nx=EXP[S.exp+1];
+  $('expBox').innerHTML=nx?`<div class="row2"><div>島を1列増やして${nx.cap}台まで拡張<p>費用 ${man(nx.cost)}（家賃も1日1.5万円上がります）</p></div><button class="btn" id="expand" ${S.money<nx.cost||busy?'disabled':''}>拡張</button></div>`:'<p style="font-size:12px;color:var(--sub)">最大まで拡張済み！</p>';
+  $('costBox').innerHTML=`<div class="res"><span>家賃</span><span class="v">${man(RENT+S.exp*15000)}</span><span>電気代（${S.machines.length}台）</span><span class="v">${man(S.machines.length*ELEC)}</span><span>人件費（${S.staff}人）</span><span class="v">${man(S.staff*STAFFPAY)}</span></div>`;
+  $('logBox').innerHTML=S.log.map(l=>`<div>${l}</div>`).join('')||'まだ記録はありません';
+  const mx=Math.max(1,...S.hist.map(x=>Math.abs(x)));
+  $('chart').innerHTML=S.hist.length?S.hist.map(v=>`<i style="height:${Math.abs(v)/mx*100}%;background:${v>=0?'var(--green)':'var(--red)'}"></i>`).join(''):'<p style="font-size:11px;color:var(--sub);margin:auto">営業するとグラフが出ます</p>';
+  $('openBtn').disabled=busy||S.over;
+}
+
+// ===== 営業シミュレーション =====
+function simulate(){
+  const ev=todayEvent(),we=isWeekend(S.day)?1.35:1;
+  const ad=ADS.find(a=>a.id===S.ad);
+  const mult=crowdMult();
+  const repF=.08+Math.pow(S.rep/50,1.4);
+  const visits=[];let coin=0,pnet=0,overflow=0;const per={};
+  S.machines.forEach(m=>{
+    per[m.id]=0;
+    if(m.broken)return;
+    const T=TYPES[m.type];
+    const pref=ev.pref?ev.pref[T.kind]:1;
+    const d=T.pop*pref*(m.newD>0?1.6:1)*2.2*repF*mult;
+    let n=Math.max(0,Math.round(d+randn()*Math.sqrt(d)*.7));if(n>6){overflow+=n-6;n=6}
+    for(let k=0;k<n;k++){
+      const c=220000*T.coin*(.6+Math.random()*.8);
+      const r=PAY[m.set]+randn()*T.vol;
+      const net=c*(r-1);
+      coin+=c;pnet+=net;per[m.id]-=net;
+      visits.push({id:m.id,net,c});
+    }
+  });
+  const gross=-pnet,adCost=ad.c+(S.eventDay?50000:0),fc=fixedCost();
+  let dRep=0;const notes=[];
+  if(coin>0)dRep+=(pnet/coin+.02)*60;
+  if(S.staff<needStaff()){dRep-=3;notes.push('スタッフ不足で評判-3')}
+  if(S.eventDay){const avg=S.machines.reduce((a,m)=>a+m.set,0)/S.machines.length;if(avg>=4){dRep+=5;notes.push('イベント大成功！評判+5')}else{dRep-=8;notes.push('「ガセイベだ！」評判-8')}}
+  if(ev.rep)dRep+=ev.rep;
+  return {visits,coin,gross,adCost,fc,dRep,notes,per,overflow,prevVis:S.lastVis,crowd:ev.crowd||'normal'};
+}
+
+// ===== 営業アニメーション（俯瞰）=====
+const T_DAY=8000,PLAY=1300,SPEED=0.34; // px/ms
+function later(fn,ms){const t=setTimeout(fn,ms);timers.push(t);return t}
+function walk(el,pts,done){
+  let i=0;
+  (function next(){
+    if(i>=pts.length){done&&done();return}
+    const [x,y]=pts[i++];
+    const cx=parseFloat(el.style.left),cy=parseFloat(el.style.top);
+    const d=Math.hypot(x-cx,y-cy),ms=Math.max(30,d/SPEED);
+    el.style.transitionDuration=ms+'ms';
+    requestAnimationFrame(()=>{el.style.left=x+'px';el.style.top=y+'px'});
+    later(next,ms+20);
+  })();
+}
+function pathLen(pts){let l=0;for(let i=1;i<pts.length;i++)l+=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);return l}
+function popAt(sc,x,y,txt,col){const pop=document.createElement('div');pop.className='pop';pop.textContent=txt;if(col)pop.style.color=col;pop.style.left=x+'px';pop.style.top=y+'px';sc.appendChild(pop);later(()=>pop.remove(),1200)}
+
+function openDay(){
+  if(busy||S.over)return;
+  if(!S.machines.length){toast('台がありません！');return}
+  const R=simulate();
+  renderScene();
+  busy=true;render();
+  $('floorWrap').scrollIntoView({behavior:'smooth',block:'center'});
+  $('ticker').classList.add('on');$('skipBtn').classList.add('on');
+  const sc=$('scene');const pool=CROWD[R.crowd];
+  const doorX=180,doorY=SCENE_H-8;
+  let acc=0,done=0,pending=0,ended=false;const total=R.visits.length;
+  const upd=()=>{$('tickVal').textContent=yen(acc);$('tickVal').className=acc>=0?'plus':'minus';$('tickVis').textContent=`来店 ${done}/${total}人${R.overflow?`／満席で帰った ${R.overflow}人`:''}`};
+  upd();
+  const gone=()=>{pending--;if(pending<=0&&!ended)later(()=>finishFn&&finishFn(),500)};
+  const mkP=()=>{const el=document.createElement('div');el.className='pp';el.textContent=pool[Math.random()*pool.length|0];el.style.left=doorX+'px';el.style.top=doorY+'px';sc.appendChild(el);return el};
+  // 台ごとの座席管理（1席に1人だけ）
+  const byM={};R.visits.forEach(v=>(byM[v.id]=byM[v.id]||[]).push(v));
+  Object.entries(byM).forEach(([id,vs])=>{
+    const p=slotPos(S.machines.find(m=>m.id==id).slot);
+    const side=p.cx<180?14:346;
+    const seat={occ:false,queue:[]};
+    const tryNext=()=>{if(seat.occ||!seat.queue.length)return;const f=seat.queue.shift();seat.occ=true;seat.queue.forEach((g,qi)=>{g.el.style.transitionDuration='200ms';g.el.style.left=(p.cx-14-qi*17)+'px'});f.sit()};
+    const window_=Math.max(800,T_DAY-vs.length*PLAY*.6);
+    vs.forEach((v,k)=>{
+      pending++;
+      const inPath=[[side,doorY-12],[side,p.walkY]];
+      const walkMs=pathLen([[doorX,doorY],...inPath,[p.cx,p.walkY]])/SPEED;
+      const arrive=500+Math.random()*window_+k*PLAY*.6;
+      later(()=>{
+        const el=mkP();
+        const qi=seat.queue.length;
+        walk(el,[...inPath,[p.cx-14-qi*17,p.walkY]],()=>{
+          seat.queue.push({el,sit:()=>{
+            walk(el,[[p.cx,p.seatY]],()=>{
+              const boxes=[];
+              later(()=>{
+                acc-=v.net;done++;upd();
+                const mEl=$('m'+id);
+                if(v.net>0&&mEl){
+                  mEl.classList.remove('win');void mEl.offsetWidth;mEl.classList.add('win');
+                  popAt(sc,p.cx,p.up?p.y-8:p.y+20,v.net>v.c*.2?'BIG!!':'REG!');
+                  const nb=clamp(Math.ceil(v.net/v.c*12),1,5);
+                  for(let b=0;b<nb;b++){const bx=document.createElement('div');bx.className='box';bx.style.left=(p.cx+9)+'px';bx.style.top=(p.seatY-4+(p.up?-1:1)*b*7)+'px';sc.appendChild(bx);boxes.push(bx)}
+                }
+                later(()=>{
+                  boxes.forEach(b=>b.remove());
+                  const after=v.net>0
+                    ?[[side,p.walkY],[side,56],[64,56]]
+                    :[[side,p.walkY],[side,doorY-12],[doorX,doorY]];
+                  walk(el,[[p.cx+12,p.walkY]],()=>{seat.occ=false;tryNext();
+                    walk(el,after,()=>{el.style.transition='opacity .3s';el.style.opacity=0;later(()=>{el.remove();gone()},300)})});
+                },PLAY*.4);
+              },PLAY*.6);
+            });
+          }});
+          tryNext();
+        });
+      },Math.max(0,arrive-walkMs));
+    });
+  });
+  // 満席で入れなかったお客さん
+  const ov=Math.min(R.overflow,24);
+  for(let i=0;i<ov;i++){
+    pending++;
+    later(()=>{
+      const el=mkP();el.style.opacity=.8;
+      const tx=40+Math.random()*280,ty=SCENE_H-30-Math.random()*14;
+      walk(el,[[tx,ty]],()=>{popAt(sc,tx,ty-14,'満席…💢','#ff8fa3');later(()=>walk(el,[[doorX,doorY]],()=>{el.remove();gone()}),700)});
+    },1500+Math.random()*(T_DAY-2500));
+  }
+  if(!pending)later(()=>finishFn&&finishFn(),1500);
+  finishFn=()=>{if(!finishFn)return;ended=true;finishFn=null;timers.forEach(clearTimeout);timers=[];sc.querySelectorAll('.pp,.box,.pop').forEach(e=>e.remove());finishDay(R)};
+  later(()=>finishFn&&finishFn(),30000);
+}
+
+function finishDay(R){
+  $('ticker').classList.remove('on');$('skipBtn').classList.remove('on');
+  const ev=todayEvent();
+  const profit=R.gross-R.fc-R.adCost;
+  S.money+=profit;
+  const oldRep=S.rep;S.rep=clamp(S.rep+R.dRep,0,100);
+  S.machines.forEach(m=>{m.last=R.per[m.id];if(m.newD>0)m.newD--;m.broken=false});
+  S.hist.push(profit);S.lastVis=R.visits.length;
+  let breakNote='';
+  if(S.machines.length&&Math.random()<.12){const m=S.machines[Math.random()*S.machines.length|0];m.broken=true;S.money-=40000;breakNote=`🔧 ${TYPES[m.type].name}が故障！修理代${man(40000)}（明日は休止）`}
+  addLog(`${ev.ic}${ev.n}／来店${R.visits.length}人／収支 <span class="${profit>=0?'plus':'minus'}">${man(profit)}</span>${R.notes.length?'／'+R.notes.join('、'):''}${breakNote?'<br>'+breakNote:''}`);
+  const dRep=S.rep-oldRep;
+  const old=R.crowd==='old'?`<p>👴 お年寄りのお客さんで大にぎわいでした！</p>`:'';
+  let html=`<h2>📊 ${fmtDate(S.day)} の営業結果</h2>
+  <div class="res">
+   <span>来店者数</span><span class="v">${R.visits.length}人${R.prevVis!=null?`<small style="font-size:10px;color:var(--sub)">（前日比${R.visits.length-R.prevVis>=0?'+':''}${R.visits.length-R.prevVis}）</small>`:''}</span>${R.overflow?`<span>満席で帰ったお客さん</span><span class="v minus">${R.overflow}人</span>`:''}
+   <span>勝って帰ったお客さん</span><span class="v">${R.visits.filter(v=>v.net>0).length}人</span>
+   <span>ホール粗利（台の収支）</span><span class="v ${R.gross>=0?'plus':'minus'}">${yen(R.gross)}</span>
+   <span>固定費</span><span class="v minus">-${yen(R.fc)}</span>
+   ${R.adCost?`<span>宣伝・イベント費</span><span class="v minus">-${yen(R.adCost)}</span>`:''}
+   <span style="font-weight:800">本日の利益</span><span class="v ${profit>=0?'plus':'minus'}" style="font-size:17px">${yen(profit)}</span>
+   <span>評判</span><span class="v ${dRep>=0?'plus':'minus'}">${Math.round(oldRep)} → ${Math.round(S.rep)}（${dRep>=0?'+':''}${dRep.toFixed(1)}）</span>
+  </div>${old}
+  ${R.notes.map(n=>`<p>・${n}</p>`).join('')}
+  ${breakNote?`<p>${breakNote}</p>`:''}
+  <p>${comment(R,profit,dRep)}</p>`;
+  S.day++;S.ad='none';S.eventDay=false;S.ev=pickEvent();
+  const sp=S.day<=MAXDAY?special(S.day):null;
+  if(sp)html+=`<p style="color:var(--gold);margin-top:6px">📅 明日は<b>${sp.n}</b>！${sp===PENSION?'Aタイプの設定や台数を見直そう':'AT機が稼ぎ時'}</p>`;
+  let end=false;
+  if(S.money<0){S.over=true;end='bankrupt'}
+  else if(S.day>MAXDAY){S.over=true;end='clear'}
+  busy=false;save();render();
+  html+=`<button class="open" id="nextBtn" style="margin-top:12px">${end?'結果を見る':'次の日へ ▶'}</button>`;
+  sheet(html,false);
+  $('nextBtn').onclick=()=>{closeSheet();if(end)showEnd(end);else window.scrollTo({top:0,behavior:'smooth'})};
+}
+function comment(R,p,d){
+  if(R.visits.length===0)return '😢 お客さんが一人も来ませんでした…評判を上げるか宣伝を！';
+  if(p>300000)return '🤑 大儲け！でも絞りすぎるとお客さんが離れていくかも…';
+  if(d>2)return '😊 「この店、出てるぞ！」と噂に。評判がぐんぐん上がっています。';
+  if(d<-2)return '😠 「全然出ない…」お客さんの不満が溜まっています。';
+  if(p<0)return '💦 赤字の日。設定や台の構成を見直してみよう。';
+  return '🙂 まずまずの一日でした。';
+}
+function showEnd(kind){
+  const a=assets();
+  const rk=kind==='bankrupt'?'倒産':a>=10e6?'S':a>=6.5e6?'A':a>=4e6?'B':a>=2.5e6?'C':'D';
+  const msg={S:'伝説のホールオーナー！街一番の人気店になりました👑',A:'敏腕オーナー！行列のできるお店に🎉',B:'堅実な経営。立派なホールです👍',C:'なんとか生き残りました。次はもっと上を！',D:'ギリギリの経営でした…',倒産:'資金がマイナスになってしまいました…。設定を上げすぎたかも？'}[rk];
+  sheet(`<h2 style="text-align:center">${kind==='bankrupt'?'💀 倒産…':'🏆 30日間の経営終了！'}</h2><div class="rank">${rk}</div><p style="text-align:center">${msg}</p><div class="res"><span>所持金</span><span class="v">${man(S.money)}</span><span>台の資産価値</span><span class="v">${man(a-S.money)}</span><span style="font-weight:800">総資産</span><span class="v" style="color:var(--gold)">${man(a)}</span><span>最終評判</span><span class="v">${Math.round(S.rep)}</span><span>台数</span><span class="v">${S.machines.length}台</span></div><p style="font-size:11px">ランク基準：S 1000万／A 650万／B 400万／C 250万</p><button class="open" id="againBtn" style="margin-top:12px">もう一度遊ぶ</button>`,false);
+  $('againBtn').onclick=()=>{newGame();save();closeSheet();render();window.scrollTo(0,0)};
+}
+
+// ===== シート =====
+function sheet(html,closable=true){$('sheet').innerHTML=html;$('sheetbg').classList.add('on');$('sheetbg').dataset.c=closable?'1':''}
+function closeSheet(){$('sheetbg').classList.remove('on')}
+$('sheetbg').onclick=e=>{if(e.target.id==='sheetbg'&&$('sheetbg').dataset.c)closeSheet()};
+
+function machineSheet(id){
+  const m=S.machines.find(x=>x.id===id);if(!m)return;const T=TYPES[m.type];
+  sheet(`<h2>${T.em} ${T.name}</h2><p>${T.kind}タイプ｜${T.desc}</p>
+  <p style="margin-top:6px">昨日の台の収支：${m.last==null?'—':`<b class="${m.last>=0?'plus':'minus'}">${yen(m.last)}</b>`}</p>
+  <div class="sets">${[1,2,3,4,5,6].map(s=>`<button class="${m.set===s?'on':''}" data-set="${s}">${s}<small>${SETLBL[s]}</small></button>`).join('')}</div>
+  <p>設定1〜3はお店が儲かりやすいけど評判ダウン。設定4〜6はお客さんが勝ちやすく評判アップ、でも赤字リスク大。</p>
+  <div style="display:flex;gap:8px;margin-top:12px"><button class="btn alt" style="flex:1" id="sellBtn">売却（${man(T.price*.4)}）</button><button class="btn" style="flex:1" id="closeBtn">OK</button></div>`);
+  $('sheet').querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{m.set=+b.dataset.set;save();render();machineSheet(id)});
+  $('closeBtn').onclick=closeSheet;
+  $('sellBtn').onclick=()=>{if(busy)return;S.machines=S.machines.filter(x=>x!==m);S.money+=T.price*.4;addLog(`${T.name}を売却（+${man(T.price*.4)}）`);save();closeSheet();render();toast('売却しました')};
+}
+function dayInfo(d){
+  const dt=dateOf(d),w=dt.getDay(),we=w===0||w===6,sp=special(d),isToday=d===S.day;
+  const items=[];
+  if(isToday){const ev=todayEvent();items.push(`<div class="row2"><div style="font-size:26px">${ev.ic}</div><div style="flex:1"><b>${ev.n}</b><p>${ev.t}</p></div></div>`)}
+  else if(sp)items.push(`<div class="row2"><div style="font-size:26px">${sp.ic}</div><div style="flex:1"><b>${sp.n}</b><p>${sp.t}</p></div></div>`);
+  if(we)items.push(`<div class="row2"><div style="font-size:26px">🎉</div><div style="flex:1"><b>週末（${DOWJ[w]}曜日）</b><p>お休みの人が多く、客足+35%。宣伝やイベント日と組み合わせると大混雑に！</p></div></div>`);
+  if(!isToday&&!sp)items.push(`<div class="row2"><div style="font-size:26px">❔</div><div style="flex:1"><b>${we?'天気・出来事は当日発表':'ふつうの平日'}</b><p>${we?'':'特別な予定はありません。'}天気や出来事（雨・台風・TV取材など）は当日の朝にわかります。</p></div></div>`);
+  if(isToday&&!sp&&!we&&todayEvent().mul===1)items.push(`<p>特別な予定のない、ふつうの${DOWJ[w]}曜日です。</p>`);
+  if(d>MAXDAY)items.push(`<p style="color:var(--red)">※ 営業期間（30日間）の後の日です</p>`);
+  const left=d-S.day;
+  sheet(`<h2>📅 ${dt.getMonth()+1}月${dt.getDate()}日（${DOWJ[w]}）${isToday?'<span style="font-size:12px;color:var(--gold)"> 今日</span>':`<span style="font-size:12px;color:var(--sub)"> あと${left}日</span>`}</h2>${items.join('')}<button class="btn" style="width:100%;margin-top:12px;padding:12px" id="calOk">閉じる</button>`);
+  $('calOk').onclick=closeSheet;
+}
+function howTo(){
+  sheet(`<h2>🎰 遊び方</h2>
+  <p>あなたはスロットホールの新米オーナー。<b>5/20〜6/18の30日間</b>でどれだけ資産を増やせるか挑戦しよう！</p>
+  <p style="margin-top:8px">① 毎朝、今日の予報とカレンダーを確認<br>② 台の<b>設定（1〜6）</b>を決める<br>③ 宣伝やイベント日で客足アップ<br>④ 「営業開始」でお客さんが入口から来店！</p>
+  <p style="margin-top:8px">📅 <b>特別な日</b><br>👴 偶数月の15日＝年金支給日。お年寄りが大量来店、Aタイプが大人気<br>💴 毎月25日＝給料日。若者が増えてAT機が人気<br>🎉 土日は客足+35%</p>
+  <p style="margin-top:8px">💡 <b>設定のジレンマ</b>：設定を低くするとお店は儲かるけど「出ない店」と評判が下がり、お客さんが来なくなる。高くすると評判は上がるけど赤字に…。</p>
+  <p style="margin-top:8px">⚠️ 所持金がマイナスになると倒産！</p>
+  <button class="open" id="hc" style="margin-top:12px">はじめる！</button>`);
+  $('hc').onclick=()=>{S.seenHow=true;save();closeSheet()};
+}
+
+// ===== 操作 =====
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{if(busy&&b.dataset.t!=='hall')return;document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.id==='t-'+b.dataset.t));window.scrollTo(0,0);if(b.dataset.t==='hall')fitScene()});
+document.body.addEventListener('click',e=>{
+  const t=e.target.closest('[data-cal],[data-ad],[data-id],[data-empty],[data-lock],[data-buy],#evChip,#openBtn,#hire,#fire,#expand,#howBtn,#resetBtn,#skipBtn');if(!t)return;
+  if(t.id==='skipBtn'){finishFn&&finishFn();return}
+  if(t.dataset.cal){dayInfo(+t.dataset.cal);return}
+  if(busy)return;
+  if(t.dataset.ad){const a=ADS.find(x=>x.id===t.dataset.ad);if(a.c>S.money){toast('お金が足りません');return}S.ad=a.id;render();save()}
+  else if(t.dataset.id)machineSheet(+t.dataset.id);
+  else if(t.dataset.empty)document.querySelector('nav [data-t=shop]').click();
+  else if(t.dataset.lock)document.querySelector('nav [data-t=mng]').click();
+  else if(t.dataset.buy){const T=TYPES[t.dataset.buy];if(S.money<T.price)return;S.money-=T.price;S.machines.push(mk(t.dataset.buy,3));addLog(`✨ 新台「${T.name}」を導入（-${man(T.price)}）`);save();render();toast(`${T.em} ${T.name}を導入しました！`)}
+  else if(t.id==='evChip'){S.eventDay=!S.eventDay;render();save()}
+  else if(t.id==='openBtn')openDay();
+  else if(t.id==='hire'){S.staff++;save();render()}
+  else if(t.id==='fire'){S.staff=Math.max(1,S.staff-1);save();render()}
+  else if(t.id==='expand'){const nx=EXP[S.exp+1];if(nx&&S.money>=nx.cost){S.money-=nx.cost;S.exp++;addLog(`🏗️ 島を増設して${nx.cap}台に拡張！`);save();render();toast('拡張しました！')}}
+  else if(t.id==='howBtn')howTo();
+  else if(t.id==='resetBtn'){sheet(`<h2>最初からやり直す？</h2><p>今の進行は消えます。</p><div style="display:flex;gap:8px;margin-top:12px"><button class="btn alt" style="flex:1" id="rn">やめる</button><button class="btn" style="flex:1" id="ry">リセット</button></div>`);$('rn').onclick=closeSheet;$('ry').onclick=()=>{newGame();save();closeSheet();render();document.querySelector('nav [data-t=hall]').click()}}
+});
+
+if(!load())newGame();
+fixSlots();
+render();
+if(S.over)showEnd(S.money<0?'bankrupt':'clear');
+else if(!S.seenHow)howTo();
+</script>
+</body>
+</html>
