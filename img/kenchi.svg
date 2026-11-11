@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400">
+  <rect width="640" height="400" fill="#fdf0f6"/>
+  <g stroke="#2a2140" stroke-width="8">
+    <ellipse cx="320" cy="205" rx="170" ry="180" fill="#ff8fb8"/>
+    <rect x="200" y="90" width="240" height="190" rx="28" fill="#cfe8b9"/>
+    <path d="M270 210 q-10-60 50-62 q60 2 52 60 q-6 40-52 42 q-46-2-50-40z" fill="#5fbf4a"/>
+    <circle cx="250" cy="330" r="18" fill="#fff"/>
+    <circle cx="320" cy="342" r="18" fill="#fff"/>
+    <circle cx="390" cy="330" r="18" fill="#fff"/>
+  </g>
+  <circle cx="302" cy="200" r="7" fill="#2a2140"/>
+  <circle cx="340" cy="200" r="7" fill="#2a2140"/>
+  <path d="M308 222 q13 10 26 0" stroke="#2a2140" stroke-width="5" fill="none" stroke-linecap="round"/>
+  <text x="320" y="128" text-anchor="middle" font-family="sans-serif" font-weight="800" font-size="30" fill="#2a2140">けんっち</text>
+  <text x="520" y="110" font-size="44">🥚</text>
+  <text x="70" y="300" font-size="44">🗾</text>
+</svg>
